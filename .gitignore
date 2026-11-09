@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.eggs/
+.pytest_cache/
+build/
+dist/
+.work/
+.vscode/
+settings.json
+ccfddl-example.yaml

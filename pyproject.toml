@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68", "wheel>=0.41"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ccfddl-desktop-widget"
+version = "0.1.0"
+description = "A Windows desktop widget for conference deadlines with editable categories and tags."
+readme = "README.md"
+requires-python = ">=3.10"
+dynamic = ["dependencies"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Office/Business :: Scheduling",
+]
+
+[project.gui-scripts]
+ccfddl-widget = "ccfddl.app:main"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["ccfddl*"]
+namespaces = false
+
+[tool.setuptools.data-files]
+"share/ccfddl-desktop-widget" = ["conferences.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
