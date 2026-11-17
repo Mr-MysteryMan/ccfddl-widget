@@ -1,5 +1,7 @@
 """Conference selection and editors for categories, tags, and venues."""
 
+from dataclasses import replace
+
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
@@ -11,7 +13,6 @@ from PySide6.QtWidgets import (
 
 from .catalog_editor import CatalogEditor
 from .edit_dialogs import CategoryDialog, ConferenceDialog
-from .preferences import Preferences
 
 
 class SettingsDialog(QDialog):
@@ -159,7 +160,7 @@ class SettingsDialog(QDialog):
     def preferences(self):
         self.sync_selection()
         catalog = self.catalog if self.catalog != self.initial_catalog or self.original.catalog is not None else None
-        return Preferences(frozenset(self._hidden), catalog)
+        return replace(self.original, hidden_conferences=frozenset(self._hidden), catalog=catalog)
 
     def selected_conference(self):
         item = self.tree.currentItem()

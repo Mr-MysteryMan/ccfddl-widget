@@ -46,6 +46,14 @@ Conference data refreshes every 24 hours, and countdowns update every minute. Yo
 
 Left-click a conference row to open its website. Drag an empty area to move the widget, or use the right-click menu to exit.
 
+### Interface size and default position
+
+By default, the interface size follows the primary screen. The program scales it between 100% and 200% based on the screen height, after Windows display scaling, so it appears larger on large screens. To fix the size instead, choose 100%–200% under **界面大小** in the right-click menu; the program restarts to apply it. The size applies to the collapsed pill. The expanded panel is enlarged a little less, for example 135% at a 150% setting, and still shows five conferences. On first start, the widget is docked collapsed to the right edge, near the top.
+
+### Edge docking
+
+Drag the widget against the top, left, or right edge of the screen and release it there to dock it. You can also choose **停靠到顶部 / 停靠到左侧 / 停靠到右侧** from the right-click menu. A docked widget stays on top of all other windows. When the pointer leaves it, the panel slides off-screen. A small pill on the edge then shows the nearest selected deadline and its countdown. The pill is horizontal on the top edge and rotated 90° on the side edges, with its top facing the screen edge. It follows the panel's position along the edge. You can drag the pill along the edge or onto another edge. Hover over the pill or click it to slide the panel out. It hides again shortly after the pointer leaves, but not while its menu or settings window is open. Drag it away from the edge, or choose **浮动在桌面**, to return it to the desktop. The position and dock edge are saved and restored on the next launch. Docking is only available on edges that don't border another monitor.
+
 ## 3. Default Conference List
 
 The default list contains 31 conferences selected using the upstream `rank.core: A*` label. CCF ranks are displayed separately. Conferences are grouped as follows:

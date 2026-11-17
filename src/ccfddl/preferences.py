@@ -1,17 +1,54 @@
 """Persist per-user conference visibility without changing the shared catalog."""
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 import json
 from pathlib import Path
 import tempfile
 
+from PySide6.QtCore import QStandardPaths
+
 from .config import MAX_DEADLINES, Catalog, catalog_document, catalog_from_document
+from .scaling import SCALE_CHOICES
+
+
+DOCK_EDGES = ('top', 'left', 'right')
+
+
+@dataclass(frozen=True)
+class Placement:
+    """Window top-left (expanded) and the screen edge it is docked to, if any."""
+    x: int
+    y: int
+    edge: str | None = None
 
 
 @dataclass(frozen=True)
 class Preferences:
     hidden_conferences: frozenset[str] = frozenset()
     catalog: Catalog | None = None
+    placement: Placement | None = None
+    scale: float | None = None  # interface size; None sizes it to the screen
+
+
+def default_settings_path() -> Path:
+    """Per-user settings file; usable before the QApplication exists once the app name is set."""
+    return Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppConfigLocation)) / 'settings.json'
+
+
+def scale_from_document(value) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or float(value) not in SCALE_CHOICES:
+        raise ValueError(f"Invalid interface scale: {value}")
+    return float(value)
+
+
+def placement_from_document(data) -> Placement:
+    if not isinstance(data, dict) or not all(
+            isinstance(data.get(key), int) and not isinstance(data[key], bool) for key in ('x', 'y')):
+        raise ValueError("Invalid window position")
+    edge = data.get('edge')
+    if edge is not None and edge not in DOCK_EDGES:
+        raise ValueError(f"Invalid dock edge: {edge}")
+    return Placement(data['x'], data['y'], edge)
 
 
 def load_preferences(path: Path) -> tuple[Preferences, str]:
@@ -25,7 +62,9 @@ def load_preferences(path: Path) -> tuple[Preferences, str]:
         if not isinstance(hidden, list) or not all(isinstance(x, str) for x in hidden):
             raise ValueError("Invalid hidden conference list")
         catalog = catalog_from_document(data['catalog']) if data.get('catalog') is not None else None
-        return Preferences(frozenset(hidden), catalog), ""
+        placement = placement_from_document(data['window']) if data.get('window') is not None else None
+        scale = scale_from_document(data['scale']) if data.get('scale') is not None else None
+        return Preferences(frozenset(hidden), catalog, placement, scale), ""
     except (OSError, ValueError) as error:
         return Preferences(), f"Unable to read settings; using defaults: {error}"
 
@@ -40,6 +79,10 @@ def save_preferences(path: Path, preferences: Preferences) -> None:
             data = {"version": 1, "hidden_conferences": sorted(preferences.hidden_conferences)}
             if preferences.catalog is not None:
                 data['catalog'] = catalog_document(preferences.catalog)
+            if preferences.placement is not None:
+                data['window'] = asdict(preferences.placement)
+            if preferences.scale is not None:
+                data['scale'] = preferences.scale
             json.dump(data,
                       stream, ensure_ascii=False, indent=2)
             stream.write("\n")

@@ -4,9 +4,11 @@ from pathlib import Path
 import sys
 from PyInstaller.utils.hooks import collect_data_files
 
-# Conda keeps this dependency outside DLLs; regular Python does not need it.
-expat_library = Path(sys.base_prefix) / 'Library' / 'bin' / 'libexpat.dll'
-extra_binaries = [(str(expat_library), '.')] if expat_library.is_file() else []
+# Conda keeps these dependencies outside DLLs, where PyInstaller does not look:
+# libexpat for pyexpat, ffi for _ctypes. Regular Python does not need them.
+conda_bin = Path(sys.base_prefix) / 'Library' / 'bin'
+extra_binaries = [(str(conda_bin / name), '.') for name in ('libexpat.dll', 'ffi.dll')
+                  if (conda_bin / name).is_file()]
 a = Analysis(
     [str(Path(SPECPATH) / 'src' / 'main.py')],
     pathex=[str(Path(SPECPATH) / 'src')],
